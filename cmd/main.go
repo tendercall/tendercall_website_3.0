@@ -4,15 +4,12 @@ import (
 	"net/http"
 
 	"tendercall-website.com/main/database"
-	"tendercall-website.com/main/service/enquiry/handler"
-	"tendercall-website.com/main/service/middleware"
+	"tendercall-website.com/main/service/router"
 )
 
 func main() {
 	database.Initdb()
-	//Enquiry router
-	http.Handle("/enquiry", middleware.AuthMiddleware(http.HandlerFunc(handler.EnquiryHandler)))
-	http.Handle("/enquirys", middleware.AuthMiddleware(http.HandlerFunc(handler.GetEnquiryByIdHandler)))
+	router.Route()
 
 	http.ListenAndServe(":8080", nil)
 }
