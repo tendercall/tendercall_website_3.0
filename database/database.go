@@ -6,7 +6,7 @@ import (
 	"log"
 
 	_ "github.com/lib/pq"
-	"tendercall-website.com/main/service/enquiry/repository"
+	"tendercall-website.com/main/service/helper"
 )
 
 func Initdb() {
@@ -24,27 +24,27 @@ func Initdb() {
 
 	// Attempt to connect to the database
 	var err error
-	repository.DB, err = sql.Open("postgres", connectionString)
+	helper.DB, err = sql.Open("postgres", connectionString)
 	if err != nil {
 		log.Fatalf("Error opening database: %v", err)
 	}
 
-	if err = repository.DB.Ping(); err != nil {
+	if err = helper.DB.Ping(); err != nil {
 		log.Fatalf("Error connecting to the database: %v", err)
 	}
 	fmt.Println("Database connection established")
 
-	// createTable := `CREATE TABLE IF NOT EXISTS enquiry (
+	// createTable := `CREATE TABLE IF NOT EXISTS testimonial (
 	// id SERIAL PRIMARY KEY,
-	// email VARCHAR(256),
-	// message VARCHAR(256),
-	// enquiry_type VARCHAR(256),
-	// enquiry_id VARCHAR(256),
+	// image VARCHAR(256),
+	// description VARCHAR(256),
+	// name VARCHAR(256),
+	// position VARCHAR(256),
 	// created_date TIMESTAMP NOT NULL DEFAULT NOW(),
 	// updated_date TIMESTAMP NOT NULL DEFAULT NOW()
 	// )`
 
-	// _, err = repository.DB.Exec(createTable)
+	// _, err = helper.DB.Exec(createTable)
 	// if err != nil {
 	// 	log.Fatal(err)
 	// }
@@ -57,7 +57,7 @@ func Initdb() {
 	// 	`
 
 	// 	// Execute the ALTER TABLE statement
-	// 	_, err = repository.DB.Exec(query)
+	// 	_, err = helper.DB.Exec(query)
 	// 	if err != nil {
 	// 		log.Fatalf("Error executing ALTER TABLE statement: %v\n", err)
 	// 	}
