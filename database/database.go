@@ -34,12 +34,11 @@ func Initdb() {
 	}
 	fmt.Println("Database connection established")
 
-	// createTable := `CREATE TABLE IF NOT EXISTS testimonial (
+	// createTable := `CREATE TABLE IF NOT EXISTS log (
 	// id SERIAL PRIMARY KEY,
-	// image VARCHAR(256),
-	// description VARCHAR(256),
-	// name VARCHAR(256),
-	// position VARCHAR(256),
+	// function VARCHAR(256),
+	// log_message VARCHAR(256),
+	// ip VARCHAR(256),
 	// created_date TIMESTAMP NOT NULL DEFAULT NOW(),
 	// updated_date TIMESTAMP NOT NULL DEFAULT NOW()
 	// )`
@@ -50,18 +49,18 @@ func Initdb() {
 	// }
 	// fmt.Println("Table created successfully")
 
-	//Example ALTER TABLE statement to add a new column
-	// 	query := `
-	// 		ALTER TABLE rating
-	// 		ALTER COLUMN rating INTEGER;
-	// 	`
-
-	// 	// Execute the ALTER TABLE statement
-	// 	_, err = helper.DB.Exec(query)
-	// 	if err != nil {
-	// 		log.Fatalf("Error executing ALTER TABLE statement: %v\n", err)
-	// 	}
-
-	// 	fmt.Println("Column added successfully.")
+	// //Example ALTER TABLE statement to add a new column
+	// query := `
+	// 	ALTER TABLE enquiry
+	// 	ALTER COLUMN enquiry_id SET DATA TYPE VARCHAR(256),
+	// 	ADD CONSTRAINT enquiry_id_unique UNIQUE (enquiry_id);
+	// `
+	// // Execute the ALTER TABLE statement
+	// _, err = helper.DB.Exec(query)
+	// if err != nil {
+	// 	log.Fatalf("Error executing ALTER TABLE statement: %v\n", err)
 	// }
+
+	// fmt.Println("Column added successfully.")
+
 }

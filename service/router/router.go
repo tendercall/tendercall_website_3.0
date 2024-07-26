@@ -15,4 +15,12 @@ func Route() {
 	//Testimonal router
 	http.Handle("/testimonial", middleware.AuthMiddleware(http.HandlerFunc(handler.TestimonialHandler)))
 	http.Handle("/testimonials", middleware.AuthMiddleware(http.HandlerFunc(handler.GetTestimonialByIdHandler)))
+
+	//Faq router
+	http.Handle("/faq", middleware.AuthMiddleware(http.HandlerFunc(handler.FaqHandler)))
+	http.Handle("/faqs", middleware.AuthMiddleware(http.HandlerFunc(handler.GetFaqByIdHandler)))
+
+	//Log router
+	http.Handle("/log", middleware.AuthMiddleware(http.HandlerFunc(handler.LogHandler)))
+	http.Handle("/logs", middleware.AuthMiddleware(http.HandlerFunc(handler.GetLogByIdHandler)))
 }

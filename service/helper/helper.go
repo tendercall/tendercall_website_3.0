@@ -180,3 +180,176 @@ func DeleteTestimonial(id uint) error {
 
 	return nil
 }
+
+// Faq POST, GET, PUT and DELETE
+func PostFaq(question, answer string, created_date, updated_date time.Time) (uint, error) {
+	var id uint
+
+	currentTime := time.Now()
+
+	err := DB.QueryRow("INSERT INTO faq (question, answer, created_date, updated_date) VALUES ($1, $2, $3, $4) RETURNING id", question, answer, currentTime, currentTime).Scan(&id)
+	if err != nil {
+		return 0, err
+	}
+
+	fmt.Println("Post Successful")
+	return id, nil
+}
+
+func GetFaq() ([]models.Faq, error) {
+	rows, err := DB.Query("SELECT id, question, answer, created_date, updated_date FROM faq")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var faqs []models.Faq
+	for rows.Next() {
+		var faq models.Faq
+		err := rows.Scan(&faq.ID, &faq.Question, &faq.Answer, &faq.CreatedDate, &faq.UpdatedDate)
+		if err != nil {
+			return nil, err
+		}
+
+		faqs = append(faqs, faq)
+	}
+
+	return faqs, nil
+}
+
+func GetFaqById(id uint) (*models.Faq, error) {
+	var faq models.Faq
+
+	err := DB.QueryRow("SELECT id, question, answer, created_date, updated_date FROM faq WHERE id=$1", id).Scan(&faq.ID, &faq.Question, &faq.Answer, &faq.CreatedDate, &faq.UpdatedDate)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("no testimonial found with id %d", id)
+		}
+		log.Println("Error", err)
+		return nil, err
+	}
+
+	return &faq, nil
+}
+
+func PutFaq(id uint, question, answer string, updated_date time.Time) error {
+	result, err := DB.Exec("UPDATE faq SET question=$1, answer=$2, updated_date=$3 where id=$4", question, answer, time.Now(), id)
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("failed to determine affected rows: %w", err)
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("testimonial not found")
+	}
+
+	fmt.Println("Update successfull")
+
+	return nil
+}
+
+func DeleteFaq(id uint) error {
+	result, err := DB.Exec("DELETE FROM faq WHERE id=$1", id)
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("failed to determine affected rows: %w", err)
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("faq found")
+	}
+
+	fmt.Println("Delete successfull")
+
+	return nil
+}
+
+// Log POST, GET, PUT and DELETE
+func PostLog(function, log_message, ip string, created_date, updated_date time.Time) (uint, error) {
+	var id uint
+
+	currentTime := time.Now()
+
+	err := DB.QueryRow("INSERT INTO log (function, log_message, ip, created_date, updated_date) VALUES ($1, $2, $3, $4, $5) RETURNING id", function, log_message, ip, currentTime, currentTime).Scan(&id)
+	if err != nil {
+		return 0, err
+	}
+
+	fmt.Println("Post Successful")
+
+	return id, nil
+}
+
+func GetLog() ([]models.Log, error) {
+	rows, err := DB.Query("SELECT id, function, log_message, ip, created_date, updated_date FROM log")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var logs []models.Log
+	for rows.Next() {
+		var log models.Log
+		err := rows.Scan(&log.ID, &log.Function, &log.LogMessage, &log.IP, &log.CreatedDate, &log.UpdatedDate)
+		if err != nil {
+			return nil, err
+		}
+		logs = append(logs, log)
+	}
+
+	fmt.Println("Get Successful")
+
+	return logs, nil
+}
+
+func GetLogById(id uint) (*models.Log, error) {
+	var logs models.Log
+	err := DB.QueryRow("SELECT id, function, log_message, ip, created_date, updated_date FROM log WHERE id=$1", id).Scan(&logs.ID, &logs.Function, &logs.LogMessage, &logs.IP, &logs.CreatedDate, &logs.UpdatedDate)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("no log found with id %d", id)
+		}
+		log.Println("Error", err)
+		return nil, err
+	}
+
+	fmt.Println("Get By Id Successful")
+
+	return &logs, nil
+}
+
+func PutLog(id uint, function, log_message, ip string, updated_date time.Time) error {
+	result, err := DB.Exec("UPDATE log SET function=$1, log_message=$2, ip=$3, updated_date=$4 WHERE id=$5", function, log_message, ip, time.Now(), id)
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("no log found with id %d", id)
+	}
+
+	fmt.Println("Update successful")
+
+	return nil
+}
+
+func DeleteLog(id uint) error {
+	result, err := DB.Exec("DELETE FROM log WHERE id=$1", id)
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("no log found with id %d", id)
+	}
+
+	fmt.Println("Delete Successful")
+
+	return nil
+}

@@ -21,3 +21,20 @@ type Testimonial struct {
 	CreatedDate time.Time `json:"created_date"`
 	UpdatedDate time.Time `json:"updated_date"`
 }
+
+type Faq struct {
+	ID          uint      `json:"id"`
+	Question    string    `json:"question"`
+	Answer      string    `json:"answer"`
+	CreatedDate time.Time `json:"created_date"`
+	UpdatedDate time.Time `json:"updated_date"`
+}
+
+type Log struct {
+	ID          uint      `json:"id"`
+	Function    string    `json:"function"`
+	LogMessage  string    `json:"log_message"`
+	IP          string    `json:"ip"`
+	CreatedDate time.Time `json:"created_date"`
+	UpdatedDate time.Time `json:"updated_date"`
+}

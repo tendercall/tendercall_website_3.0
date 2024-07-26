@@ -113,7 +113,7 @@ func PutEnquiryHandler(w http.ResponseWriter, r *http.Request) {
 	// Set the updated date to the current time
 	enquiry.UpdatedDate = time.Now()
 
-	// Update the Offer in the helper
+	// Update the enquiry in the helper
 	err = helper.PutEnquiry(enquiry.ID, enquiry.Email, enquiry.Message, enquiry.EnquiryType, enquiry.EnquiryID, enquiry.UpdatedDate)
 	if err != nil {
 		if err.Error() == "Enquiry not found" {
@@ -316,7 +316,7 @@ func PutTestimonialHandler(w http.ResponseWriter, r *http.Request) {
 	// Set the updated date to the current time
 	Testimonial.UpdatedDate = time.Now()
 
-	// Update the Offer in the helper
+	// Update the testimonial in the helper
 	err = helper.PutTestimonial(Testimonial.ID, Testimonial.Image, Testimonial.Description, Testimonial.Name, Testimonial.Position, Testimonial.UpdatedDate)
 	if err != nil {
 		if err.Error() == "Testimonial not found" {
@@ -348,7 +348,271 @@ func DeleteTestimonialHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Testimonial not found", http.StatusNotFound)
 			return
 		} else {
-			http.Error(w, fmt.Sprintf("Failed to update Testimonial: %v", err), http.StatusInternalServerError)
+			http.Error(w, fmt.Sprintf("Failed to delete Testimonial: %v", err), http.StatusInternalServerError)
+			return
+		}
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+// Faq Handler
+func FaqHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost {
+		PostFaqHandler(w, r)
+	} else if r.Method == http.MethodGet {
+		GetFaqHandler(w, r)
+	} else if r.Method == http.MethodPut {
+		PutFaqHandler(w, r)
+	} else if r.Method == http.MethodDelete {
+		DeleteFaqHandler(w, r)
+	} else {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	}
+}
+
+func PostFaqHandler(w http.ResponseWriter, r *http.Request) {
+	var faq models.Faq
+
+	if err := json.NewDecoder(r.Body).Decode(&faq); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+	}
+
+	id, err := helper.PostFaq(faq.Question, faq.Answer, faq.CreatedDate, faq.UpdatedDate)
+	if err != nil {
+		http.Error(w, "Error while posting enquiry", http.StatusInternalServerError)
+	}
+
+	faq.ID = id
+
+	w.Header().Set("Content-type", "application/json")
+	json.NewEncoder(w).Encode(faq)
+}
+
+func GetFaqHandler(w http.ResponseWriter, r *http.Request) {
+	faq, err := helper.GetFaq()
+	if err != nil {
+		http.Error(w, "Error while getting Testimonial", http.StatusInternalServerError)
+	}
+
+	w.Header().Set("Content-type", "application/json")
+	json.NewEncoder(w).Encode(faq)
+}
+
+func GetFaqByIdHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Extract ID from URL query parameter
+	idStr := r.URL.Query().Get("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "Invalid ID", http.StatusBadRequest)
+		return
+	}
+
+	// Retrieve support from helper by ID
+	faq, err := helper.GetFaqById(uint(id))
+	if err != nil {
+		if err.Error() == fmt.Sprintf("no faq found with id %d", id) {
+			http.Error(w, err.Error(), http.StatusNotFound)
+		} else {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+		return
+	}
+
+	w.Header().Set("Content-type", "application/json")
+	json.NewEncoder(w).Encode(faq)
+}
+
+func PutFaqHandler(w http.ResponseWriter, r *http.Request) {
+	idStr := r.URL.Query().Get("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "Invalid ID", http.StatusBadRequest)
+		return
+	}
+
+	var faq models.Faq
+	if err := json.NewDecoder(r.Body).Decode(&faq); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Set the id from the query parameter
+	faq.ID = uint(id)
+
+	// Set the updated date to the current time
+	faq.UpdatedDate = time.Now()
+
+	// Update the faq in the helper
+	err = helper.PutFaq(faq.ID, faq.Question, faq.Answer, faq.UpdatedDate)
+	if err != nil {
+		if err.Error() == "Faq not found" {
+			http.Error(w, "Faq not found", http.StatusNotFound)
+			return
+		} else {
+			http.Error(w, fmt.Sprintf("Failed to update Faq: %v", err), http.StatusInternalServerError)
+			return
+		}
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(faq); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func DeleteFaqHandler(w http.ResponseWriter, r *http.Request) {
+	idStr := r.URL.Query().Get("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "Invalid ID", http.StatusBadRequest)
+		return
+	}
+
+	err = helper.DeleteFaq(uint(id))
+	if err != nil {
+		if err.Error() == "Faq not found" {
+			http.Error(w, "Faq not found", http.StatusNotFound)
+			return
+		} else {
+			http.Error(w, fmt.Sprintf("Failed to delete faq: %v", err), http.StatusInternalServerError)
+			return
+		}
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+// Log Handler
+func LogHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost {
+		PostLogHandler(w, r)
+	} else if r.Method == http.MethodGet {
+		GetLogHandler(w, r)
+	} else if r.Method == http.MethodPut {
+		PutLogHandler(w, r)
+	} else if r.Method == http.MethodDelete {
+		DeleteLogHandler(w, r)
+	} else {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	}
+}
+
+func PostLogHandler(w http.ResponseWriter, r *http.Request) {
+	var log models.Log
+
+	if err := json.NewDecoder(r.Body).Decode(&log); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+	}
+
+	id, err := helper.PostLog(log.Function, log.LogMessage, log.IP, log.CreatedDate, log.UpdatedDate)
+	if err != nil {
+		http.Error(w, "Error while posting enquiry", http.StatusInternalServerError)
+	}
+
+	log.ID = id
+
+	w.Header().Set("Content-type", "application/json")
+	json.NewEncoder(w).Encode(log)
+}
+
+func GetLogHandler(w http.ResponseWriter, r *http.Request) {
+	log, err := helper.GetLog()
+	if err != nil {
+		http.Error(w, "Error while getting Testimonial", http.StatusInternalServerError)
+	}
+
+	w.Header().Set("Content-type", "application/json")
+	json.NewEncoder(w).Encode(log)
+}
+
+func GetLogByIdHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Extract ID from URL query parameter
+	idStr := r.URL.Query().Get("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "Invalid ID", http.StatusBadRequest)
+		return
+	}
+
+	// Retrieve support from helper by ID
+	log, err := helper.GetLogById(uint(id))
+	if err != nil {
+		if err.Error() == fmt.Sprintf("no log found with id %d", id) {
+			http.Error(w, err.Error(), http.StatusNotFound)
+		} else {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+		return
+	}
+
+	w.Header().Set("Content-type", "application/json")
+	json.NewEncoder(w).Encode(log)
+}
+
+func PutLogHandler(w http.ResponseWriter, r *http.Request) {
+	idStr := r.URL.Query().Get("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "Invalid ID", http.StatusBadRequest)
+		return
+	}
+
+	var log models.Log
+	if err := json.NewDecoder(r.Body).Decode(&log); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Set the id from the query parameter
+	log.ID = uint(id)
+
+	// Set the updated date to the current time
+	log.UpdatedDate = time.Now()
+
+	// Update the log in the helper
+	err = helper.PutLog(log.ID, log.Function, log.LogMessage, log.IP, log.UpdatedDate)
+	if err != nil {
+		if err.Error() == "Log not found" {
+			http.Error(w, "Log not found", http.StatusNotFound)
+			return
+		} else {
+			http.Error(w, fmt.Sprintf("Failed to update log: %v", err), http.StatusInternalServerError)
+			return
+		}
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(log); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func DeleteLogHandler(w http.ResponseWriter, r *http.Request) {
+	idStr := r.URL.Query().Get("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "Invalid ID", http.StatusBadRequest)
+		return
+	}
+
+	err = helper.DeleteLog(uint(id))
+	if err != nil {
+		if err.Error() == "Log not found" {
+			http.Error(w, "Log not found", http.StatusNotFound)
+			return
+		} else {
+			http.Error(w, fmt.Sprintf("Failed to delete Log: %v", err), http.StatusInternalServerError)
 			return
 		}
 	}
